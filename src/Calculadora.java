@@ -8,6 +8,8 @@ public class Calculadora {
     private JTextField visorAtual;
 
     private double resultado = 0;
+    private String operadorPendente = "+";
+    private boolean novoNumero = true;
 
     public Calculadora() {
         janela = new JFrame();
@@ -34,7 +36,7 @@ public class Calculadora {
 
         JPanel painelBotoes = new JPanel(new GridLayout(4, 4, 5, 5));
 
-        String[] textos = new String[] { 
+        String[] textos = new String[] {
                 "7", "8", "9", "/",
                 "4", "5", "6", "*",
                 "1", "2", "3", "-",
@@ -53,29 +55,44 @@ public class Calculadora {
 
     }
 
-    private void tratarClique(String s) {
-        calcular(Double.parseDouble(visorAtual.getText()), s);
-        if ("0123456789".contains(s)) {
-            visorAtual.setText(s);
-        } else if ("+-/*=".contains(s)) {
-            if (s.equals("=")) {
+    private void tratarClique(String comando) {
+        if ("0123456789".contains(comando)) {
+            if (novoNumero) {
+                visorAtual.setText(comando);
+                novoNumero = false;
+            } else {
+                visorAtual.setText(visorAtual.getText() + comando);
+            }
+        } else if ("+-/*=".contains(comando)) {
+            calcular(Double.parseDouble(visorAtual.getText()));
+            operadorPendente = comando;
+            if (comando.equals("=")) {
                 visorEquacao.setText(visorEquacao.getText() + visorAtual.getText() + " = ");
                 visorAtual.setText(String.valueOf(resultado));
                 resultado = 0;
+                operadorPendente = "+";
             } else {
-                visorEquacao.setText(visorEquacao.getText() + visorAtual.getText() + " " + s + " ");
+                visorEquacao.setText(visorEquacao.getText() + visorAtual.getText() + " " + comando + " ");
+                visorAtual.setText(String.valueOf(resultado));
             }
+            novoNumero = true;
+        } else if (comando.equals("C")) {
+            resultado = 0;
+            operadorPendente = "+";
+            novoNumero = true;
+            visorAtual.setText("0");
+            visorEquacao.setText("");
         }
     }
 
-    private void calcular(double valor, String operador){
-        if (operador.equals("+")) {
+    private void calcular(double valor) {
+        if (operadorPendente.equals("+")) {
             resultado += valor;
-        } else if (operador.equals("-")){
+        } else if (operadorPendente.equals("-")) {
             resultado -= valor;
-        } else if (operador.equals("*")){
+        } else if (operadorPendente.equals("*")) {
             resultado *= valor;
-        } else if (operador.equals("*")){
+        } else if (operadorPendente.equals("/")) {
             resultado /= valor;
         }
     }
